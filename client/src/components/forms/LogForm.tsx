@@ -289,7 +289,7 @@ function BasicPicker({
   return (
     <div
       className="fixed inset-0 flex items-end justify-center"
-      style={{ zIndex: 60, backgroundColor: 'rgba(0,0,0,0.7)' }}
+      style={{ zIndex: 200, backgroundColor: 'rgba(0,0,0,0.7)' }}
     >
       <div
         className="w-full max-w-lg rounded-t-2xl border-t border-white/10 flex flex-col"

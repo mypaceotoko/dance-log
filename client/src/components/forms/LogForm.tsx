@@ -82,7 +82,7 @@ export default function LogForm({ existing, initialDate, onClose }: LogFormProps
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="px-4 py-4 space-y-5 overflow-y-auto flex-1 pb-6">
+        <form id="log-form" onSubmit={handleSubmit} className="px-4 py-4 space-y-5 overflow-y-auto flex-1 pb-2">
           {/* 日付 */}
           <div>
             <Label className="text-xs text-muted-foreground mb-1.5 block">日付</Label>
@@ -212,16 +212,17 @@ export default function LogForm({ existing, initialDate, onClose }: LogFormProps
             )}
           </div>
 
-          {/* ボタン */}
-          <div className="flex gap-2 pt-2 pb-4">
-            <Button type="button" variant="outline" onClick={onClose} className="flex-1">
-              キャンセル
-            </Button>
-            <Button type="submit" className="flex-1" disabled={items.length === 0}>
-              {existing ? '更新する' : '記録する'}
-            </Button>
-          </div>
         </form>
+
+        {/* ボタン - 常に下部に固定 */}
+        <div className="flex gap-2 px-4 py-3 border-t border-border/40 bg-card">
+          <Button type="button" variant="outline" onClick={onClose} className="flex-1">
+            キャンセル
+          </Button>
+          <Button type="submit" form="log-form" className="flex-1" disabled={items.length === 0}>
+            {existing ? '更新する' : '記録する'}
+          </Button>
+        </div>
       </div>
 
       {/* 基礎練ピッカー */}

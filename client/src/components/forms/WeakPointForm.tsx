@@ -53,7 +53,7 @@ export default function WeakPointForm({ existing, onClose }: WeakPointFormProps)
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="px-4 py-4 space-y-4 overflow-y-auto flex-1 pb-6">
+        <form id="weakpoint-form" onSubmit={handleSubmit} className="px-4 py-4 space-y-4 overflow-y-auto flex-1 pb-2">
           {/* タイトル */}
           <div>
             <Label className="text-xs text-muted-foreground mb-1.5 block">苦手・課題 *</Label>
@@ -172,16 +172,17 @@ export default function WeakPointForm({ existing, onClose }: WeakPointFormProps)
             )}
           </div>
 
-          {/* ボタン */}
-          <div className="flex gap-2 pt-2 pb-4">
-            <Button type="button" variant="outline" onClick={onClose} className="flex-1">
-              キャンセル
-            </Button>
-            <Button type="submit" className="flex-1">
-              {existing ? '更新する' : '追加する'}
-            </Button>
-          </div>
         </form>
+
+        {/* ボタン - 常に下部に固定 */}
+        <div className="flex gap-2 px-4 py-3 border-t border-border/40 bg-card">
+          <Button type="button" variant="outline" onClick={onClose} className="flex-1">
+            キャンセル
+          </Button>
+          <Button type="submit" form="weakpoint-form" className="flex-1">
+            {existing ? '更新する' : '追加する'}
+          </Button>
+        </div>
       </div>
     </div>
   );

@@ -164,38 +164,7 @@ const INITIAL_BASICS: Basic[] = [
 ];
 
 function buildInitialLogs(): PracticeLog[] {
-  const now = new Date();
-  const d1 = new Date(now); d1.setDate(d1.getDate() - 2);
-  const d2 = new Date(now); d2.setDate(d2.getDate() - 1);
-  const fmt = (d: Date) => d.toISOString().split('T')[0];
-  return [
-    {
-      id: 'l1',
-      date: fmt(d1),
-      items: [
-        { basicId: 'b1', minutes: 15 },
-        { basicId: 'b3', minutes: 10 },
-      ],
-      memo: 'スタジオで練習。HITの精度を上げることに集中した。',
-      feeling: 'HITのタイミングが少し掴めてきた気がする。GROOVEはまだ体が硬い。',
-      rating: 3,
-      tags: ['スタジオ', 'HIT強化'],
-      createdAt: d1.toISOString(),
-    },
-    {
-      id: 'l2',
-      date: fmt(d2),
-      items: [
-        { basicId: 'b6', minutes: 20 },
-        { basicId: 'b4', minutes: 10 },
-      ],
-      memo: '自宅練習。アイソレを重点的にやった。',
-      feeling: '首のアイソレは改善してきた。胸はまだ硬い。',
-      rating: 4,
-      tags: ['自宅', 'アイソレ'],
-      createdAt: d2.toISOString(),
-    },
-  ];
+  return [];
 }
 
 const INITIAL_WEAK_POINTS: WeakPoint[] = [

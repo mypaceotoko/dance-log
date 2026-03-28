@@ -41,7 +41,7 @@ export default function BasicForm({ genreId, existing, onClose }: BasicFormProps
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm">
-      <div className="w-full max-w-lg bg-card rounded-t-2xl border-t border-border/50 max-h-[90vh] overflow-y-auto">
+      <div className="w-full max-w-lg bg-card rounded-t-2xl border-t border-border/50 max-h-[90vh] flex flex-col">
         {/* ヘッダー */}
         <div className="flex items-center justify-between px-4 py-4 border-b border-border/40">
           <h2 className="font-bold text-base" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
@@ -52,7 +52,7 @@ export default function BasicForm({ genreId, existing, onClose }: BasicFormProps
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="px-4 py-4 space-y-4">
+        <form onSubmit={handleSubmit} className="px-4 py-4 space-y-4 overflow-y-auto flex-1 pb-6">
           {/* 項目名 */}
           <div>
             <Label className="text-xs text-muted-foreground mb-1.5 block">項目名 *</Label>

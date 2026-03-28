@@ -168,6 +168,8 @@ function buildInitialLogs(): PracticeLog[] {
 }
 
 const INITIAL_WEAK_POINTS: WeakPoint[] = [
+  // 初期データなし - ユーザーが自分で登録する
+  /*
   {
     id: 'w1',
     title: '鏡を見ると動きが崩れる',
@@ -209,13 +211,14 @@ const INITIAL_WEAK_POINTS: WeakPoint[] = [
     createdAt: '2025-01-10T00:00:00Z',
     doneAt: '2025-03-01T00:00:00Z',
   },
+  */
 ];
 
 // ============================================================
 // ストレージキー
 // ============================================================
 
-const STORAGE_KEY = 'dance-log-data-v2'; // v2: 初期ログなし・クリーンスタート
+const STORAGE_KEY = 'dance-log-data-v4'; // v4: 基礎練あり・苦手とログは空
 
 // ============================================================
 // データ読み書き

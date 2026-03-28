@@ -41,9 +41,9 @@ export default function BasicForm({ genreId, existing, onClose }: BasicFormProps
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm">
-      <div className="w-full max-w-lg bg-card rounded-t-2xl border-t border-border/50 max-h-[90vh] flex flex-col">
+      <div className="w-full max-w-lg bg-card rounded-t-2xl border-t border-border/50 flex flex-col" style={{ maxHeight: '85vh' }}>
         {/* ヘッダー */}
-        <div className="flex items-center justify-between px-4 py-4 border-b border-border/40">
+        <div className="flex items-center justify-between px-4 py-4 border-b border-border/40 flex-shrink-0">
           <h2 className="font-bold text-base" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
             {existing ? '基礎練を編集' : '基礎練を追加'}
           </h2>
@@ -158,7 +158,7 @@ export default function BasicForm({ genreId, existing, onClose }: BasicFormProps
         </form>
 
         {/* ボタン - 常に下部に固定 */}
-        <div className="flex gap-2 px-4 py-3 border-t border-border/40 bg-card">
+        <div className="flex gap-2 px-4 py-3 border-t border-border/40 bg-card flex-shrink-0">
           <Button type="button" variant="outline" onClick={onClose} className="flex-1">
             キャンセル
           </Button>

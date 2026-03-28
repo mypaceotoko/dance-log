@@ -1,7 +1,8 @@
 // Dance Log - 練習ログフォーム
 // ボトムシート構造: ボトムナビ(80px)の上から表示
+// BasicPickerはインラインドロップダウンとして実装（z-index問題を回避）
 import { useState } from 'react';
-import { X, Plus, Minus, Tag } from 'lucide-react';
+import { X, Plus, Minus, Tag, ChevronDown, ChevronUp } from 'lucide-react';
 import { useData } from '@/contexts/DataContext';
 import { PracticeLog, LogItem, getTodayStr } from '@/lib/store';
 import { Button } from '@/components/ui/button';
@@ -25,12 +26,13 @@ export default function LogForm({ existing, initialDate, onClose }: LogFormProps
   const [rating, setRating] = useState<1|2|3|4|5>(existing?.rating ?? 3);
   const [tagInput, setTagInput] = useState('');
   const [tags, setTags] = useState<string[]>(existing?.tags ?? []);
-  const [showBasicPicker, setShowBasicPicker] = useState(false);
+  const [showPicker, setShowPicker] = useState(false);
+  const [searchQ, setSearchQ] = useState('');
+  const [filterGenreId, setFilterGenreId] = useState('');
 
   const addItem = (basicId: string) => {
     if (items.some(i => i.basicId === basicId)) return;
     setItems(prev => [...prev, { basicId, minutes: 10 }]);
-    setShowBasicPicker(false);
   };
 
   const removeItem = (basicId: string) => {
@@ -67,6 +69,12 @@ export default function LogForm({ existing, initialDate, onClose }: LogFormProps
     }
     onClose();
   };
+
+  const filteredBasics = data.basics.filter(b => {
+    const matchSearch = !searchQ || b.title.toLowerCase().includes(searchQ.toLowerCase());
+    const matchGenre = !filterGenreId || b.genreId === filterGenreId;
+    return matchSearch && matchGenre;
+  });
 
   return (
     <>
@@ -125,11 +133,8 @@ export default function LogForm({ existing, initialDate, onClose }: LogFormProps
               )}
             </div>
 
-            {items.length === 0 ? (
-              <div className="text-center py-4 text-muted-foreground text-xs border border-dashed border-border/50 rounded-lg">
-                項目を追加してください
-              </div>
-            ) : (
+            {/* 追加済み項目 */}
+            {items.length > 0 && (
               <div className="space-y-2 mb-2">
                 {items.map(item => {
                   const basic = data.basics.find(b => b.id === item.basicId);
@@ -162,13 +167,90 @@ export default function LogForm({ existing, initialDate, onClose }: LogFormProps
               </div>
             )}
 
+            {/* + 項目を追加ボタン */}
             <button
               type="button"
-              onClick={() => setShowBasicPicker(true)}
-              className="w-full py-2 rounded-lg border border-dashed border-primary/40 text-primary text-sm hover:bg-primary/5 transition-colors flex items-center justify-center gap-1"
+              onClick={() => setShowPicker(prev => !prev)}
+              className="w-full py-2.5 rounded-lg border border-dashed border-primary/40 text-primary text-sm hover:bg-primary/5 transition-colors flex items-center justify-center gap-1"
             >
-              <Plus size={14} /> 項目を追加
+              <Plus size={14} />
+              項目を追加
+              {showPicker ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
             </button>
+
+            {/* インラインピッカー */}
+            {showPicker && (
+              <div className="mt-2 rounded-xl border border-border/50 overflow-hidden" style={{ backgroundColor: 'hsl(222 47% 8%)' }}>
+                {/* 検索・フィルター */}
+                <div className="p-2 border-b border-border/30 flex gap-2">
+                  <Input
+                    value={searchQ}
+                    onChange={e => setSearchQ(e.target.value)}
+                    placeholder="検索..."
+                    className="bg-background border-border/50 text-sm h-8 flex-1"
+                    autoFocus={false}
+                  />
+                  <select
+                    value={filterGenreId}
+                    onChange={e => setFilterGenreId(e.target.value)}
+                    className="bg-background border border-border/50 rounded-md text-xs px-2 h-8 text-foreground"
+                  >
+                    <option value="">全ジャンル</option>
+                    {data.genres.map(g => (
+                      <option key={g.id} value={g.id}>{g.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* 基礎練リスト */}
+                <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                  {filteredBasics.length === 0 ? (
+                    <div className="text-center py-4 text-muted-foreground text-xs">該当なし</div>
+                  ) : (
+                    filteredBasics.map(b => {
+                      const genre = data.genres.find(g => g.id === b.genreId);
+                      const isSelected = items.some(i => i.basicId === b.id);
+                      return (
+                        <button
+                          key={b.id}
+                          type="button"
+                          onClick={() => {
+                            if (!isSelected) {
+                              addItem(b.id);
+                            } else {
+                              removeItem(b.id);
+                            }
+                          }}
+                          className={`w-full flex items-center gap-2 px-3 py-2.5 text-left transition-colors ${
+                            isSelected ? 'bg-primary/15' : 'hover:bg-muted/20'
+                          }`}
+                        >
+                          {genre && (
+                            <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: genre.color }} />
+                          )}
+                          <span className="text-sm text-foreground flex-1">{b.title}</span>
+                          <span className="text-[10px] text-muted-foreground">{genre?.name}</span>
+                          {isSelected && (
+                            <span className="text-primary text-xs font-bold">✓</span>
+                          )}
+                        </button>
+                      );
+                    })
+                  )}
+                </div>
+
+                {/* 閉じるボタン */}
+                <div className="p-2 border-t border-border/30">
+                  <button
+                    type="button"
+                    onClick={() => setShowPicker(false)}
+                    className="w-full py-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    閉じる
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* 評価 */}
@@ -255,112 +337,6 @@ export default function LogForm({ existing, initialDate, onClose }: LogFormProps
           </Button>
         </div>
       </div>
-
-      {/* 基礎練ピッカー */}
-      {showBasicPicker && (
-        <BasicPicker
-          selectedIds={items.map(i => i.basicId)}
-          onSelect={addItem}
-          onClose={() => setShowBasicPicker(false)}
-        />
-      )}
     </>
-  );
-}
-
-// 基礎練ピッカー
-function BasicPicker({
-  selectedIds, onSelect, onClose
-}: {
-  selectedIds: string[];
-  onSelect: (id: string) => void;
-  onClose: () => void;
-}) {
-  const { data } = useData();
-  const [searchQ, setSearchQ] = useState('');
-  const [filterGenreId, setFilterGenreId] = useState<string>('');
-
-  const filtered = data.basics.filter(b => {
-    const matchSearch = !searchQ || b.title.includes(searchQ);
-    const matchGenre = !filterGenreId || b.genreId === filterGenreId;
-    return matchSearch && matchGenre;
-  });
-
-  return (
-    <div
-      className="fixed inset-0 flex items-end justify-center"
-      style={{ zIndex: 200, backgroundColor: 'rgba(0,0,0,0.7)' }}
-    >
-      <div
-        className="w-full max-w-lg rounded-t-2xl border-t border-white/10 flex flex-col"
-        style={{
-          backgroundColor: 'hsl(222 47% 11%)',
-          maxHeight: '75dvh',
-        }}
-      >
-        <div className="flex items-center justify-between px-4 py-3 border-b border-white/10" style={{ flexShrink: 0 }}>
-          <h3 className="font-semibold text-sm text-white">練習項目を選択</h3>
-          <button onClick={onClose} className="p-1 text-muted-foreground"><X size={16} /></button>
-        </div>
-        <div className="px-3 py-2 border-b border-white/10 space-y-2" style={{ flexShrink: 0 }}>
-          <Input
-            placeholder="検索..."
-            value={searchQ}
-            onChange={e => setSearchQ(e.target.value)}
-            className="bg-background border-border/40 h-8 text-sm"
-          />
-          <div className="flex gap-1.5 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
-            <button
-              onClick={() => setFilterGenreId('')}
-              className={`flex-shrink-0 px-2.5 py-1 rounded text-xs font-medium transition-colors ${
-                !filterGenreId ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
-              }`}
-            >
-              すべて
-            </button>
-            {data.genres.map(g => (
-              <button
-                key={g.id}
-                onClick={() => setFilterGenreId(g.id === filterGenreId ? '' : g.id)}
-                className="flex-shrink-0 px-2.5 py-1 rounded text-xs font-medium transition-colors"
-                style={filterGenreId === g.id
-                  ? { backgroundColor: g.color + '30', color: g.color, border: `1px solid ${g.color}50` }
-                  : { backgroundColor: 'transparent', color: 'var(--muted-foreground)' }
-                }
-              >
-                {g.name}
-              </button>
-            ))}
-          </div>
-        </div>
-        <div className="overflow-y-auto px-3 py-2 space-y-1" style={{ flex: 1 }}>
-          {filtered.map(b => {
-            const genre = data.genres.find(g => g.id === b.genreId);
-            const isSelected = selectedIds.includes(b.id);
-            return (
-              <button
-                key={b.id}
-                onClick={() => !isSelected && onSelect(b.id)}
-                disabled={isSelected}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-colors ${
-                  isSelected
-                    ? 'opacity-40 cursor-not-allowed bg-muted/30'
-                    : 'hover:bg-muted/50'
-                }`}
-              >
-                {genre && (
-                  <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: genre.color }} />
-                )}
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium text-foreground">{b.title}</div>
-                  {genre && <div className="text-[10px] text-muted-foreground">{genre.name}</div>}
-                </div>
-                {isSelected && <span className="text-[10px] text-muted-foreground">追加済み</span>}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    </div>
   );
 }

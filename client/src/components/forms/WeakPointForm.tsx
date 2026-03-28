@@ -1,5 +1,5 @@
 // Dance Log - 苦手項目フォーム
-// ボトムシート構造: header(固定) + scroll-area(可変) + footer(固定)
+// ボトムシート構造: ボトムナビ(64px)の上から表示
 import { useState } from 'react';
 import { X, Plus } from 'lucide-react';
 import { useData } from '@/contexts/DataContext';
@@ -13,6 +13,9 @@ interface WeakPointFormProps {
   existing?: WeakPoint;
   onClose: () => void;
 }
+
+// ボトムナビの高さ + iPhoneホームバー分
+const NAV_HEIGHT = 80;
 
 export default function WeakPointForm({ existing, onClose }: WeakPointFormProps) {
   const { data, addWeakPoint, updateWeakPoint } = useData();
@@ -44,21 +47,24 @@ export default function WeakPointForm({ existing, onClose }: WeakPointFormProps)
   };
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-end justify-center"
-      style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
-      onClick={e => { if (e.target === e.currentTarget) onClose(); }}
-    >
-      {/* シート本体: 高さを85dvhに制限し、flex-colで3段構成 */}
+    <>
+      {/* オーバーレイ */}
       <div
-        className="w-full max-w-lg rounded-t-2xl border-t border-white/10 flex flex-col"
+        className="fixed inset-0 z-[100]"
+        style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
+        onClick={onClose}
+      />
+
+      {/* シート本体: ボトムナビの上から表示 */}
+      <div
+        className="fixed left-0 right-0 z-[101] flex flex-col rounded-t-2xl border-t border-white/10 max-w-lg mx-auto"
         style={{
+          bottom: `${NAV_HEIGHT}px`,
+          top: '10dvh',
           backgroundColor: 'hsl(222 47% 11%)',
-          height: '85dvh',
-          maxHeight: '85dvh',
         }}
       >
-        {/* ── ヘッダー（固定・縮まない） ── */}
+        {/* ── ヘッダー（固定） ── */}
         <div
           className="flex items-center justify-between px-4 border-b border-white/10"
           style={{ paddingTop: '1rem', paddingBottom: '1rem', flexShrink: 0 }}
@@ -74,7 +80,7 @@ export default function WeakPointForm({ existing, onClose }: WeakPointFormProps)
           </button>
         </div>
 
-        {/* ── スクロール可能エリア（伸縮する） ── */}
+        {/* ── スクロール可能エリア ── */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
 
           {/* タイトル */}
@@ -85,6 +91,7 @@ export default function WeakPointForm({ existing, onClose }: WeakPointFormProps)
               onChange={e => setTitle(e.target.value)}
               placeholder="例: 鏡を見ると崩れる、リズムが走る"
               className="bg-background border-border/50"
+              autoFocus={false}
             />
           </div>
 
@@ -195,7 +202,7 @@ export default function WeakPointForm({ existing, onClose }: WeakPointFormProps)
           </div>
         </div>
 
-        {/* ── フッター（固定・縮まない） ── */}
+        {/* ── フッター（固定） ── */}
         <div
           className="flex gap-2 border-t border-white/10"
           style={{
@@ -217,6 +224,6 @@ export default function WeakPointForm({ existing, onClose }: WeakPointFormProps)
           </Button>
         </div>
       </div>
-    </div>
+    </>
   );
 }

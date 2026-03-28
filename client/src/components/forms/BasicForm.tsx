@@ -1,5 +1,5 @@
 // Dance Log - 基礎練フォーム（追加・編集）
-// ボトムシート構造: header(固定) + scroll-area(可変) + footer(固定)
+// ボトムシート構造: ボトムナビ(80px)の上から表示
 import { useState } from 'react';
 import { X, Youtube, Link as LinkIcon } from 'lucide-react';
 import { useData } from '@/contexts/DataContext';
@@ -40,17 +40,21 @@ export default function BasicForm({ genreId, existing, onClose }: BasicFormProps
   };
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-end justify-center"
-      style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
-      onClick={e => { if (e.target === e.currentTarget) onClose(); }}
-    >
+    <>
+      {/* オーバーレイ */}
       <div
-        className="w-full max-w-lg rounded-t-2xl border-t border-white/10 flex flex-col"
+        className="fixed inset-0 z-[100]"
+        style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
+        onClick={onClose}
+      />
+
+      {/* シート本体: ボトムナビの上から表示 */}
+      <div
+        className="fixed left-0 right-0 z-[101] flex flex-col rounded-t-2xl border-t border-white/10 max-w-lg mx-auto"
         style={{
+          bottom: '80px',
+          top: '10dvh',
           backgroundColor: 'hsl(222 47% 11%)',
-          height: '85dvh',
-          maxHeight: '85dvh',
         }}
       >
         {/* ── ヘッダー（固定） ── */}
@@ -196,6 +200,6 @@ export default function BasicForm({ genreId, existing, onClose }: BasicFormProps
           </Button>
         </div>
       </div>
-    </div>
+    </>
   );
 }

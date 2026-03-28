@@ -1,4 +1,5 @@
 // Dance Log - 苦手項目フォーム
+// ボトムシート構造: header(固定) + scroll-area(可変) + footer(固定)
 import { useState } from 'react';
 import { X, Plus } from 'lucide-react';
 import { useData } from '@/contexts/DataContext';
@@ -28,8 +29,7 @@ export default function WeakPointForm({ existing, onClose }: WeakPointFormProps)
     );
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSave = () => {
     if (!title.trim()) return;
     const payload = {
       title: title.trim(), reason, improvement,
@@ -44,25 +44,39 @@ export default function WeakPointForm({ existing, onClose }: WeakPointFormProps)
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm">
-      <div className="w-full max-w-lg bg-card rounded-t-2xl border-t border-border/50 flex flex-col" style={{ maxHeight: '85vh' }}>
-
-        {/* ヘッダー - 固定 */}
-        <div className="flex items-center justify-between px-4 py-4 border-b border-border/40 flex-shrink-0">
-          <h2 className="font-bold text-base" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center"
+      style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
+      onClick={e => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      {/* シート本体: 高さを85dvhに制限し、flex-colで3段構成 */}
+      <div
+        className="w-full max-w-lg rounded-t-2xl border-t border-white/10 flex flex-col"
+        style={{
+          backgroundColor: 'hsl(222 47% 11%)',
+          height: '85dvh',
+          maxHeight: '85dvh',
+        }}
+      >
+        {/* ── ヘッダー（固定・縮まない） ── */}
+        <div
+          className="flex items-center justify-between px-4 border-b border-white/10"
+          style={{ paddingTop: '1rem', paddingBottom: '1rem', flexShrink: 0 }}
+        >
+          <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: '1rem', color: 'white' }}>
             {existing ? '課題を編集' : '苦手を追加'}
           </h2>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-muted/50 text-muted-foreground">
+          <button
+            onClick={onClose}
+            style={{ padding: '6px', borderRadius: '8px', color: '#94a3b8', background: 'transparent', border: 'none' }}
+          >
             <X size={18} />
           </button>
         </div>
 
-        {/* フォーム本体 - スクロール可能 */}
-        <form
-          id="weakpoint-form"
-          onSubmit={handleSubmit}
-          className="px-4 py-4 space-y-4 overflow-y-auto flex-1"
-        >
+        {/* ── スクロール可能エリア（伸縮する） ── */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+
           {/* タイトル */}
           <div>
             <Label className="text-xs text-muted-foreground mb-1.5 block">苦手・課題 *</Label>
@@ -71,7 +85,6 @@ export default function WeakPointForm({ existing, onClose }: WeakPointFormProps)
               onChange={e => setTitle(e.target.value)}
               placeholder="例: 鏡を見ると崩れる、リズムが走る"
               className="bg-background border-border/50"
-              required
             />
           </div>
 
@@ -142,7 +155,7 @@ export default function WeakPointForm({ existing, onClose }: WeakPointFormProps)
                       } : {}}
                     >
                       {basic.title}
-                      <button type="button" onClick={() => toggleBasic(id)} className="hover:opacity-70">
+                      <button type="button" onClick={() => toggleBasic(id)}>
                         <X size={10} />
                       </button>
                     </span>
@@ -159,7 +172,7 @@ export default function WeakPointForm({ existing, onClose }: WeakPointFormProps)
             </button>
 
             {showBasicPicker && (
-              <div className="mt-2 bg-background rounded-lg border border-border/50 max-h-40 overflow-y-auto">
+              <div className="mt-2 bg-background rounded-lg border border-border/50 max-h-36 overflow-y-auto">
                 {data.basics.map(b => {
                   const genre = data.genres.find(g => g.id === b.genreId);
                   const isSelected = relatedBasicIds.includes(b.id);
@@ -172,7 +185,7 @@ export default function WeakPointForm({ existing, onClose }: WeakPointFormProps)
                     >
                       {genre && <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: genre.color }} />}
                       <span className="text-sm text-foreground">{b.title}</span>
-                      <span className="text-[10px] text-muted-foreground">{genre?.name}</span>
+                      <span className="text-[10px] text-muted-foreground ml-1">{genre?.name}</span>
                       {isSelected && <span className="ml-auto text-primary text-xs">✓</span>}
                     </button>
                   );
@@ -180,18 +193,29 @@ export default function WeakPointForm({ existing, onClose }: WeakPointFormProps)
               </div>
             )}
           </div>
-        </form>
+        </div>
 
-        {/* ボタン - 常に下部に固定 */}
-        <div className="flex gap-2 px-4 py-3 border-t border-border/40 bg-card flex-shrink-0">
+        {/* ── フッター（固定・縮まない） ── */}
+        <div
+          className="flex gap-2 border-t border-white/10"
+          style={{
+            padding: '0.75rem 1rem',
+            flexShrink: 0,
+            backgroundColor: 'hsl(222 47% 11%)',
+          }}
+        >
           <Button type="button" variant="outline" onClick={onClose} className="flex-1">
             キャンセル
           </Button>
-          <Button type="submit" form="weakpoint-form" className="flex-1">
+          <Button
+            type="button"
+            onClick={handleSave}
+            disabled={!title.trim()}
+            className="flex-1"
+          >
             {existing ? '更新する' : '追加する'}
           </Button>
         </div>
-
       </div>
     </div>
   );

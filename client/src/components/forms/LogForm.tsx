@@ -1,6 +1,7 @@
 // Dance Log - 練習ログフォーム
+// ボトムシート構造: header(固定) + scroll-area(可変) + footer(固定)
 import { useState } from 'react';
-import { X, Plus, Minus, Tag, Clock } from 'lucide-react';
+import { X, Plus, Minus, Tag } from 'lucide-react';
 import { useData } from '@/contexts/DataContext';
 import { PracticeLog, LogItem, getTodayStr } from '@/lib/store';
 import { Button } from '@/components/ui/button';
@@ -8,7 +9,6 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import RatingStars from '@/components/RatingStars';
-import GenreBadge from '@/components/GenreBadge';
 
 interface LogFormProps {
   existing?: PracticeLog;
@@ -57,8 +57,7 @@ export default function LogForm({ existing, initialDate, onClose }: LogFormProps
 
   const totalMinutes = items.reduce((s, i) => s + i.minutes, 0);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSave = () => {
     if (items.length === 0) return;
     const payload = { date, items, memo, feeling, rating, tags };
     if (existing) {
@@ -70,19 +69,38 @@ export default function LogForm({ existing, initialDate, onClose }: LogFormProps
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm">
-      <div className="w-full max-w-lg bg-card rounded-t-2xl border-t border-border/50 flex flex-col" style={{ maxHeight: '85vh' }}>
-        {/* ヘッダー */}
-        <div className="flex items-center justify-between px-4 py-4 border-b border-border/40 flex-shrink-0">
-          <h2 className="font-bold text-base" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center"
+      style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
+      onClick={e => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div
+        className="w-full max-w-lg rounded-t-2xl border-t border-white/10 flex flex-col"
+        style={{
+          backgroundColor: 'hsl(222 47% 11%)',
+          height: '85dvh',
+          maxHeight: '85dvh',
+        }}
+      >
+        {/* ── ヘッダー（固定） ── */}
+        <div
+          className="flex items-center justify-between px-4 border-b border-white/10"
+          style={{ paddingTop: '1rem', paddingBottom: '1rem', flexShrink: 0 }}
+        >
+          <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: '1rem', color: 'white' }}>
             {existing ? '練習ログを編集' : '練習を記録する'}
           </h2>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-muted/50 text-muted-foreground">
+          <button
+            onClick={onClose}
+            style={{ padding: '6px', borderRadius: '8px', color: '#94a3b8', background: 'transparent', border: 'none' }}
+          >
             <X size={18} />
           </button>
         </div>
 
-        <form id="log-form" onSubmit={handleSubmit} className="px-4 py-4 space-y-5 overflow-y-auto flex-1 pb-2">
+        {/* ── スクロール可能エリア ── */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+
           {/* 日付 */}
           <div>
             <Label className="text-xs text-muted-foreground mb-1.5 block">日付</Label>
@@ -99,9 +117,7 @@ export default function LogForm({ existing, initialDate, onClose }: LogFormProps
             <div className="flex items-center justify-between mb-2">
               <Label className="text-xs text-muted-foreground">練習した項目 *</Label>
               {totalMinutes > 0 && (
-                <span className="text-xs text-primary font-medium dl-number">
-                  合計 {totalMinutes}分
-                </span>
+                <span className="text-xs text-primary font-medium">合計 {totalMinutes}分</span>
               )}
             </div>
 
@@ -126,7 +142,7 @@ export default function LogForm({ existing, initialDate, onClose }: LogFormProps
                           className="w-6 h-6 rounded bg-muted/50 flex items-center justify-center text-muted-foreground hover:text-foreground">
                           <Minus size={12} />
                         </button>
-                        <span className="text-sm font-medium dl-number w-12 text-center">{item.minutes}分</span>
+                        <span className="text-sm font-medium w-12 text-center">{item.minutes}分</span>
                         <button type="button" onClick={() => updateMinutes(item.basicId, 5)}
                           className="w-6 h-6 rounded bg-muted/50 flex items-center justify-center text-muted-foreground hover:text-foreground">
                           <Plus size={12} />
@@ -211,15 +227,26 @@ export default function LogForm({ existing, initialDate, onClose }: LogFormProps
               </div>
             )}
           </div>
+        </div>
 
-        </form>
-
-        {/* ボタン - 常に下部に固定 */}
-        <div className="flex gap-2 px-4 py-3 border-t border-border/40 bg-card flex-shrink-0">
+        {/* ── フッター（固定） ── */}
+        <div
+          className="flex gap-2 border-t border-white/10"
+          style={{
+            padding: '0.75rem 1rem',
+            flexShrink: 0,
+            backgroundColor: 'hsl(222 47% 11%)',
+          }}
+        >
           <Button type="button" variant="outline" onClick={onClose} className="flex-1">
             キャンセル
           </Button>
-          <Button type="submit" form="log-form" className="flex-1" disabled={items.length === 0}>
+          <Button
+            type="button"
+            onClick={handleSave}
+            disabled={items.length === 0}
+            className="flex-1"
+          >
             {existing ? '更新する' : '記録する'}
           </Button>
         </div>
@@ -256,20 +283,29 @@ function BasicPicker({
   });
 
   return (
-    <div className="fixed inset-0 z-60 flex items-end justify-center bg-black/70">
-      <div className="w-full max-w-lg bg-card rounded-t-2xl border-t border-border/50 max-h-[80vh] flex flex-col">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-border/40">
-          <h3 className="font-semibold text-sm">練習項目を選択</h3>
+    <div
+      className="fixed inset-0 flex items-end justify-center"
+      style={{ zIndex: 60, backgroundColor: 'rgba(0,0,0,0.7)' }}
+    >
+      <div
+        className="w-full max-w-lg rounded-t-2xl border-t border-white/10 flex flex-col"
+        style={{
+          backgroundColor: 'hsl(222 47% 11%)',
+          maxHeight: '75dvh',
+        }}
+      >
+        <div className="flex items-center justify-between px-4 py-3 border-b border-white/10" style={{ flexShrink: 0 }}>
+          <h3 className="font-semibold text-sm text-white">練習項目を選択</h3>
           <button onClick={onClose} className="p-1 text-muted-foreground"><X size={16} /></button>
         </div>
-        <div className="px-3 py-2 border-b border-border/30 space-y-2">
+        <div className="px-3 py-2 border-b border-white/10 space-y-2" style={{ flexShrink: 0 }}>
           <Input
             placeholder="検索..."
             value={searchQ}
             onChange={e => setSearchQ(e.target.value)}
             className="bg-background border-border/40 h-8 text-sm"
           />
-          <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
+          <div className="flex gap-1.5 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
             <button
               onClick={() => setFilterGenreId('')}
               className={`flex-shrink-0 px-2.5 py-1 rounded text-xs font-medium transition-colors ${
@@ -282,7 +318,7 @@ function BasicPicker({
               <button
                 key={g.id}
                 onClick={() => setFilterGenreId(g.id === filterGenreId ? '' : g.id)}
-                className={`flex-shrink-0 px-2.5 py-1 rounded text-xs font-medium transition-colors`}
+                className="flex-shrink-0 px-2.5 py-1 rounded text-xs font-medium transition-colors"
                 style={filterGenreId === g.id
                   ? { backgroundColor: g.color + '30', color: g.color, border: `1px solid ${g.color}50` }
                   : { backgroundColor: 'transparent', color: 'var(--muted-foreground)' }
@@ -293,7 +329,7 @@ function BasicPicker({
             ))}
           </div>
         </div>
-        <div className="overflow-y-auto flex-1 px-3 py-2 space-y-1">
+        <div className="overflow-y-auto px-3 py-2 space-y-1" style={{ flex: 1 }}>
           {filtered.map(b => {
             const genre = data.genres.find(g => g.id === b.genreId);
             const isSelected = selectedIds.includes(b.id);

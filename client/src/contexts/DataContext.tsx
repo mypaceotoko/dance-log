@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import {
   AppData, Basic, Genre, PracticeLog, WeakPoint,
-  loadData, saveData, newId, getTodayStr,
+  loadData, saveData, newId, getTodayStr, STORAGE_KEY,
 } from '@/lib/store';
 
 interface DataContextType {
@@ -157,7 +157,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   }, [update]);
 
   const resetData = useCallback(() => {
-    localStorage.removeItem('dance-log-data');
+    localStorage.removeItem(STORAGE_KEY);
     window.location.reload();
   }, []);
 

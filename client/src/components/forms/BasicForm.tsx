@@ -1,4 +1,5 @@
 // Dance Log - 基礎練フォーム（追加・編集）
+// ボトムシート構造: header(固定) + scroll-area(可変) + footer(固定)
 import { useState } from 'react';
 import { X, Youtube, Link as LinkIcon } from 'lucide-react';
 import { useData } from '@/contexts/DataContext';
@@ -24,8 +25,7 @@ export default function BasicForm({ genreId, existing, onClose }: BasicFormProps
   const [priority, setPriority] = useState<1 | 2 | 3>(existing?.priority ?? 2);
   const [isWeakPoint, setIsWeakPoint] = useState(existing?.isWeakPoint ?? false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSave = () => {
     if (!title.trim()) return;
     const payload = {
       genreId, title: title.trim(), memo, tips,
@@ -40,19 +40,38 @@ export default function BasicForm({ genreId, existing, onClose }: BasicFormProps
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm">
-      <div className="w-full max-w-lg bg-card rounded-t-2xl border-t border-border/50 flex flex-col" style={{ maxHeight: '85vh' }}>
-        {/* ヘッダー */}
-        <div className="flex items-center justify-between px-4 py-4 border-b border-border/40 flex-shrink-0">
-          <h2 className="font-bold text-base" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center"
+      style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
+      onClick={e => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div
+        className="w-full max-w-lg rounded-t-2xl border-t border-white/10 flex flex-col"
+        style={{
+          backgroundColor: 'hsl(222 47% 11%)',
+          height: '85dvh',
+          maxHeight: '85dvh',
+        }}
+      >
+        {/* ── ヘッダー（固定） ── */}
+        <div
+          className="flex items-center justify-between px-4 border-b border-white/10"
+          style={{ paddingTop: '1rem', paddingBottom: '1rem', flexShrink: 0 }}
+        >
+          <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: '1rem', color: 'white' }}>
             {existing ? '基礎練を編集' : '基礎練を追加'}
           </h2>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-muted/50 text-muted-foreground">
+          <button
+            onClick={onClose}
+            style={{ padding: '6px', borderRadius: '8px', color: '#94a3b8', background: 'transparent', border: 'none' }}
+          >
             <X size={18} />
           </button>
         </div>
 
-        <form id="basic-form" onSubmit={handleSubmit} className="px-4 py-4 space-y-4 overflow-y-auto flex-1 pb-2">
+        {/* ── スクロール可能エリア ── */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+
           {/* 項目名 */}
           <div>
             <Label className="text-xs text-muted-foreground mb-1.5 block">項目名 *</Label>
@@ -61,7 +80,6 @@ export default function BasicForm({ genreId, existing, onClose }: BasicFormProps
               onChange={e => setTitle(e.target.value)}
               placeholder="例: HIT、GROOVE、フットワーク"
               className="bg-background border-border/50"
-              required
             />
           </div>
 
@@ -154,15 +172,26 @@ export default function BasicForm({ genreId, existing, onClose }: BasicFormProps
               {isWeakPoint ? '⚠️ 苦手項目としてマーク中' : '苦手項目としてマーク'}
             </button>
           </div>
+        </div>
 
-        </form>
-
-        {/* ボタン - 常に下部に固定 */}
-        <div className="flex gap-2 px-4 py-3 border-t border-border/40 bg-card flex-shrink-0">
+        {/* ── フッター（固定） ── */}
+        <div
+          className="flex gap-2 border-t border-white/10"
+          style={{
+            padding: '0.75rem 1rem',
+            flexShrink: 0,
+            backgroundColor: 'hsl(222 47% 11%)',
+          }}
+        >
           <Button type="button" variant="outline" onClick={onClose} className="flex-1">
             キャンセル
           </Button>
-          <Button type="submit" form="basic-form" className="flex-1">
+          <Button
+            type="button"
+            onClick={handleSave}
+            disabled={!title.trim()}
+            className="flex-1"
+          >
             {existing ? '更新する' : '追加する'}
           </Button>
         </div>

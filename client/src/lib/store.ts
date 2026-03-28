@@ -110,7 +110,7 @@ const INITIAL_BASICS: Basic[] = [
     memo: '波のように体を流れる動き。アームウェーブ・ボディウェーブ。',
     tips: 'パーツを順番に意識して動かす。ゆっくりから始める。',
     youtubeUrl: 'https://www.youtube.com/results?search_query=popping+waving+tutorial',
-    referenceUrl: '', priority: 2, isWeakPoint: true,
+    referenceUrl: '', priority: 2, isWeakPoint: false,
     createdAt: '2025-01-01T00:00:00Z',
   },
   {
@@ -142,7 +142,7 @@ const INITIAL_BASICS: Basic[] = [
     memo: '体の各パーツを独立して動かすトレーニング。',
     tips: '首・肩・胸・腰を個別に動かす練習から始める。',
     youtubeUrl: 'https://www.youtube.com/results?search_query=isolation+dance+tutorial',
-    referenceUrl: '', priority: 3, isWeakPoint: true,
+    referenceUrl: '', priority: 3, isWeakPoint: false,
     createdAt: '2025-01-01T00:00:00Z',
   },
   {
